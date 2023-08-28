@@ -5,8 +5,6 @@ import { signIn, useSession } from 'next-auth/react'
 import { toast } from "react-hot-toast"
 import { useRouter } from "next/navigation"
 
-
-
 export default function Login() {
     const session = useSession()
     const router = useRouter()
