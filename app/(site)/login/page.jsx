@@ -23,7 +23,6 @@ export default function Login() {
             })
 
             const loginUser = async (e) => {
-                e.preventDefault()
                 signIn('credentials',
                  {...data, redirect: false
                 })
@@ -36,6 +35,7 @@ export default function Login() {
                         toast.success('Logged in successfully!')
                     }
                 } )
+                e.preventDefault()
             }
 
     return (

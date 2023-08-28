@@ -16,13 +16,14 @@ export const authOptions = {
         GoogleProvider({
             clientId: process.env.GOOGLE_ID,
             clientSecret: process.env.GOOGLE_SECRET,
-        }),
+          }),
         CredentialsProvider({
             name: "credentials",
             credentials: {
                 email: { label: "Email", type: "text", placeholder: "jsmith" },
                 password: { label: "Password", type: "password" },
                 username: { label: "Username", type: "text", placeholder: "John Smith" },
+                address: { label: "Address", type: "text", placeholder: "Address Smith" },
             },
             async authorize(credentials) {
               
@@ -55,6 +56,44 @@ export const authOptions = {
             },
         }),  
     ],
+    callbacks: {
+        async jwt({ token, user, session, trigger }) {
+            console.log("jwt token", { token, user, session });
+            if ( trigger == 'update' && session?.name){
+                token.name = session.name
+            }
+            
+            if (user) {
+                return {
+                    ...token,
+                    id: user.id,
+                    address: user.address
+                };
+            }
+
+            const newUser = await prisma.user.update({
+                where: {
+                    id: token.id
+                },
+                data:{
+                    name: token.name
+                },
+            });
+            return token;
+        },
+        async session({ session, token, user }) {
+            console.log("session callback", { session, token, user });
+            return {
+                ...session,
+                user: {
+                    ...session.user,
+                    id: token.id,
+                    address: token.address,
+                    name: token.name
+                }
+            };
+        },
+    },
     secret: process.env.SECRET,
     session: {
         strategy: "jwt",
